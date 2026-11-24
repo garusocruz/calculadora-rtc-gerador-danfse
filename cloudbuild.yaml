@@ -1,0 +1,124 @@
+# Pull request para main. Suíte do pin e quality gates. Não publica e não gera PDF.
+# O push na main usa cloudbuild-prod.yaml e publica no mesmo run do quality gate.
+# A tag vX.Y.Z usa cloudbuild-release.yaml e só confere o que a main já publicou.
+# O comentário da pull request sai em report-pr.
+substitutions:
+  _LIB_NAME: calculadora_rtc_gerador_danfse
+  _ENVIRONMENT: pr
+  _REGION: us-central1
+  _RUN_TERRAFORM: "0"
+  _RUN_PUBLISH: "0"
+  _GITHUB_OWNER: garusocruz
+  _GITHUB_REPO: calculadora-rtc-gerador-danfse
+  _CONTEXT: calculadora-rtc-gerador-danfse
+
+timeout: 3600s
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: E2_MEDIUM
+
+steps:
+  - id: cancel-superseded-builds
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: bash
+    allowFailure: true
+    env:
+      - PROJECT_ID=$PROJECT_ID
+      - BUILD_ID=$BUILD_ID
+      - LOCATION=$LOCATION
+      - TRIGGER_NAME=$TRIGGER_NAME
+      - REF_NAME=$REF_NAME
+      - _REGION=$_REGION
+      - _ENVIRONMENT=$_ENVIRONMENT
+      - _PR_NUMBER=$_PR_NUMBER
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        chmod +x /workspace/cloudbuild/cancel-superseded-builds.sh
+        bash /workspace/cloudbuild/cancel-superseded-builds.sh
+    waitFor: ["-"]
+
+  - id: equivalencia
+    name: eclipse-temurin:25-jdk
+    waitFor: ["cancel-superseded-builds"]
+    allowFailure: true
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        export DEBIAN_FRONTEND=noninteractive
+        apt-get update -qq
+        apt-get install -y -qq python3 python3-pip python3-venv git ca-certificates curl
+        python3 -m venv /opt/venv
+        /opt/venv/bin/pip install pytest pytest-cov
+        export PATH="/opt/venv/bin:$$PATH"
+        mkdir -p /workspace/.ci/steps
+        set +e
+        bash scripts/equivalencia.sh
+        code=$$?
+        set -e
+        echo "$${code}" | tee /workspace/.ci/exit_code > /workspace/.ci/steps/equivalencia.exit
+        exit "$${code}"
+
+  - id: quality-gates
+    name: eclipse-temurin:25-jdk
+    waitFor: ["equivalencia"]
+    allowFailure: true
+    entrypoint: bash
+    env:
+      - COVERAGE_FAIL_UNDER=80
+      - PYTEST_VENV=/workspace/.ci/pytest-venv
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        export DEBIAN_FRONTEND=noninteractive
+        apt-get update -qq
+        apt-get install -y -qq python3 python3-pip python3-venv git ca-certificates curl
+        mkdir -p /workspace/.ci/steps /workspace/.ci/trivy-cache
+        chmod +x scripts/ci-quality-gates.sh scripts/run-trivy-fs.sh scripts/hooks/*.sh
+        export TRIVY_CACHE_DIR=/workspace/.ci/trivy-cache
+        set +e
+        bash scripts/ci-quality-gates.sh cb
+        code=$$?
+        set -e
+        echo "$${code}" | tee /workspace/.ci/exit_code > /workspace/.ci/steps/quality-gates.exit
+        exit "$${code}"
+
+  - id: report-pr
+    allowFailure: true
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    waitFor: ["quality-gates"]
+    entrypoint: bash
+    env:
+      - PROJECT_ID=$PROJECT_ID
+      - BUILD_ID=$BUILD_ID
+      - COMMIT_SHA=$COMMIT_SHA
+      - SHORT_SHA=$SHORT_SHA
+      - _ENVIRONMENT=$_ENVIRONMENT
+      - _REGION=$_REGION
+      - _PR_NUMBER=$_PR_NUMBER
+      - _GITHUB_OWNER=$_GITHUB_OWNER
+      - _GITHUB_REPO=$_GITHUB_REPO
+      - _CONTEXT=$_CONTEXT
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        apt-get update -qq && apt-get install -y -qq python3 >/dev/null
+        chmod +x deploy/scripts/report-pr-status.sh
+        bash deploy/scripts/report-pr-status.sh
+
+  - id: pipeline-gate
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    waitFor: ["report-pr"]
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        chmod +x deploy/scripts/pipeline-gate.sh
+        exec bash deploy/scripts/pipeline-gate.sh

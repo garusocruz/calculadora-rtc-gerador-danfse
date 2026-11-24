@@ -1,0 +1,94 @@
+# Tag vX.Y.Z. Não refaz o build, não altera o README e não publica.
+# A esteira da main já publicou no PyPI. Este trigger só confere o README e o índice.
+# O ambiente production faz o script de cancelamento sair sem cancelar a tag.
+substitutions:
+  _LIB_NAME: calculadora_rtc_gerador_danfse
+  _ENVIRONMENT: production
+  _REGION: us-central1
+  _RUN_PUBLISH: "1"
+  _GITHUB_OWNER: garusocruz
+  _GITHUB_REPO: calculadora-rtc-gerador-danfse
+  _CONTEXT: calculadora-rtc-gerador-danfse
+
+timeout: 3600s
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: E2_MEDIUM
+
+steps:
+  - id: cancel-superseded-builds
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: bash
+    allowFailure: true
+    env:
+      - PROJECT_ID=$PROJECT_ID
+      - BUILD_ID=$BUILD_ID
+      - LOCATION=$LOCATION
+      - TRIGGER_NAME=$TRIGGER_NAME
+      - REF_NAME=$REF_NAME
+      - _REGION=$_REGION
+      - _ENVIRONMENT=$_ENVIRONMENT
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        chmod +x /workspace/cloudbuild/cancel-superseded-builds.sh
+        bash /workspace/cloudbuild/cancel-superseded-builds.sh
+    waitFor: ["-"]
+
+  - id: publicar
+    name: python:3.12-slim
+    waitFor: ["cancel-superseded-builds"]
+    allowFailure: true
+    entrypoint: bash
+    env:
+      - TAG_NAME=$TAG_NAME
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        mkdir -p /workspace/.ci/steps
+        trap 'code=$$?; echo "$${code}" | tee /workspace/.ci/exit_code > /workspace/.ci/steps/publicar.exit' EXIT
+        if [ "${_RUN_PUBLISH}" != "1" ]; then
+          echo "skip publish (_RUN_PUBLISH=${_RUN_PUBLISH})"
+          exit 0
+        fi
+        export DEBIAN_FRONTEND=noninteractive
+        apt-get update -qq && apt-get install -y -qq curl ca-certificates >/dev/null
+        chmod +x scripts/conferir-versao-publicada.sh
+        bash scripts/conferir-versao-publicada.sh
+
+  - id: report-pr
+    allowFailure: true
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    waitFor: ["publicar"]
+    entrypoint: bash
+    env:
+      - PROJECT_ID=$PROJECT_ID
+      - BUILD_ID=$BUILD_ID
+      - COMMIT_SHA=$COMMIT_SHA
+      - SHORT_SHA=$SHORT_SHA
+      - _ENVIRONMENT=$_ENVIRONMENT
+      - _REGION=$_REGION
+      - _GITHUB_OWNER=$_GITHUB_OWNER
+      - _GITHUB_REPO=$_GITHUB_REPO
+      - _CONTEXT=$_CONTEXT
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        apt-get update -qq && apt-get install -y -qq python3 >/dev/null
+        chmod +x deploy/scripts/report-pr-status.sh
+        bash deploy/scripts/report-pr-status.sh
+
+  - id: pipeline-gate
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    waitFor: ["report-pr"]
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        chmod +x deploy/scripts/pipeline-gate.sh
+        exec bash deploy/scripts/pipeline-gate.sh
