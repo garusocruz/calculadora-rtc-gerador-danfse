@@ -14,10 +14,11 @@ def test_pin_oficial_e_o_danfse_1_0_0() -> None:
 
 
 def test_situacao_por_stc_segue_o_pin() -> None:
+    # situacao_test.go TestSituacaoNotaPorSTC
     assert situacao_por_stc(0) == (SituacaoNota.VALIDA, True)
     assert situacao_por_stc(1) == (SituacaoNota.SUBSTITUIDA, True)
     assert situacao_por_stc(2) == (SituacaoNota.CANCELADA, True)
-    assert situacao_por_stc(9) == (SituacaoNota.VALIDA, False)
+    assert situacao_por_stc(3) == (SituacaoNota.VALIDA, False)
 
 
 def test_marca_dagua() -> None:
@@ -26,9 +27,13 @@ def test_marca_dagua() -> None:
     assert marca_dagua(SituacaoNota.VALIDA) == ""
 
 
-def test_ampersand_solto_vira_entidade_e_a_entidade_fica() -> None:
-    assert sanitizar_ampersand("a & b &amp; c") == "a &amp; b &amp; c"
-    assert sanitizar_ampersand("sem") == "sem"
+def test_ampersand_repete_os_quatro_casos_do_pin() -> None:
+    # utils_strings_test.go TestSanitizarAmpersand_*
+    entidades = "&amp; &lt; &gt; &quot; &apos; &#65; &#x41;"
+    assert sanitizar_ampersand(entidades) == entidades
+    assert sanitizar_ampersand("A & B") == "A &amp; B"
+    assert sanitizar_ampersand("no ampersand here") == "no ampersand here"
+    assert sanitizar_ampersand("safe &amp; unsafe & evil") == "safe &amp; unsafe &amp; evil"
 
 
 def test_a_fachada_nao_expoe_pdf() -> None:

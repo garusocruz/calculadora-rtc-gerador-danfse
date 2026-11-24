@@ -79,7 +79,7 @@ Data: {quando}. Os números abaixo são do Cloud Build [`{build}`]({url}), o run
 | Pytest do pin | {pytest} |
 | Cobertura Python | {cob_py} |
 | Pacote deste run | `{sdist}` e `{wheel}` |
-| Frase final | `Pin: a suíte de situação e texto passou.` |"""
+| Frase final | `Pin: situação, marca d'água e & do Go passaram. O PDF não entra.` |"""
 text = pathlib.Path(path).read_text(encoding="utf-8")
 start = "<!-- release-runs:start -->"
 end = "<!-- release-runs:end -->"
