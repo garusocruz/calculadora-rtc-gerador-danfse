@@ -86,8 +86,8 @@ O gancho `scripts/hooks/pre-push.sh` chama `scripts/equivalencia.sh` depois da a
 A release `v0.1.1` é essa versão no GitHub.
 
 <!-- release-runs:start -->
-Release `v0.1.3` em 2026-11-24. Build [`06c67d15-00ae-4f12-9f83-6a1eebee4506`](https://console.cloud.google.com/cloud-build/builds;region=us-central1/06c67d15-00ae-4f12-9f83-6a1eebee4506?project=lynko-508200) no commit `8a6d08d32c269f10b4b312c9a72c682460cf9062`.
-Pacote deste run: `calculadora_rtc_gerador_danfse-0.1.3.tar.gz` e `calculadora_rtc_gerador_danfse-0.1.3-py3-none-any.whl`.
+Release `v0.1.4` em 2026-11-24. Build [`7420e7af-f9cf-45c3-ad04-c59da6745acb`](https://console.cloud.google.com/cloud-build/builds;region=us-central1/7420e7af-f9cf-45c3-ad04-c59da6745acb?project=lynko-508200) no commit `42e82edab63580e6a0201c74ac31e93afbcaa163`.
+Pacote deste run: `calculadora_rtc_gerador_danfse-0.1.4.tar.gz` e `calculadora_rtc_gerador_danfse-0.1.4-py3-none-any.whl`.
 <!-- release-runs:end -->
 
 A tag `vX.Y.Z` dispara `calculadora-rtc-gerador-danfse-release`. Esse passo não publica de novo: confere o README e que o PyPI já tem a versão gravada no bloco abaixo.
@@ -111,13 +111,13 @@ Só imprime `pre-push OK` quando a auditoria de versão, os quality gates e a su
 
 ## Última validação
 
-Data: 24 de novembro de 2026. Os números abaixo são do Cloud Build [`06c67d15-00ae-4f12-9f83-6a1eebee4506`](https://console.cloud.google.com/cloud-build/builds;region=us-central1/06c67d15-00ae-4f12-9f83-6a1eebee4506?project=lynko-508200), o run que validou esta versão.
+Data: 24 de novembro de 2026. Os números abaixo são do Cloud Build [`7420e7af-f9cf-45c3-ad04-c59da6745acb`](https://console.cloud.google.com/cloud-build/builds;region=us-central1/7420e7af-f9cf-45c3-ad04-c59da6745acb?project=lynko-508200), o run que validou esta versão.
 
 | Checagem | Saída |
 | --- | --- |
-| Pytest do pin | 13 passaram, 0 ignorados, 0,09 s |
+| Pytest do pin | 13 passaram, 0 ignorados, 0,08 s |
 | Cobertura Python | 85% de 80 sentenças. O mínimo desta lib é 80% |
-| Pacote deste run | `calculadora_rtc_gerador_danfse-0.1.3.tar.gz` e `calculadora_rtc_gerador_danfse-0.1.3-py3-none-any.whl` |
+| Pacote deste run | `calculadora_rtc_gerador_danfse-0.1.4.tar.gz` e `calculadora_rtc_gerador_danfse-0.1.4-py3-none-any.whl` |
 | Go no corte | 10 testes, 0 sem par, 0 com resultado diferente |
 | Frase final | `Equivalência: a mesma suíte passou nas duas. O PDF não entra.` |
 
@@ -143,7 +143,7 @@ Não se recoloca esse gerador em `backends/faturae`. Não se publica no Artifact
 
 ## Instalação
 
-Python 3.12 ou superior. Não há dependência de runtime além da biblioteca padrão. O pacote público no PyPI é a `0.1.3`.
+Python 3.12 ou superior. Não há dependência de runtime além da biblioteca padrão. O pacote público no PyPI é a `0.1.4`.
 
 ```bash
 pip install calculadora-rtc-gerador-danfse
