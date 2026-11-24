@@ -61,7 +61,7 @@ O resultado depende do insumo e da cobertura da suíte. Uso em documento fiscal 
 
 ## Arquitetura
 
-![Arquitetura](docs/arquitetura.png)
+![Arquitetura](https://raw.githubusercontent.com/garusocruz/calculadora-rtc-gerador-danfse/46f58e3184cf307ab70268a12105d02c53030bce/docs/arquitetura.png)
 
 A seta do diagrama é a regra portada do pin. O pre-push executa o `go test` desses pacotes e exige o mesmo nome dos dois lados. `situacao.py` resolve o `stc`. `texto.py` trata o `&` solto e o corte. Os dois não se importam. A fachada não desenha o PDF.
 
