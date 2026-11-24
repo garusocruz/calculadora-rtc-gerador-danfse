@@ -19,7 +19,7 @@ Na pull request: `cancel-superseded-builds` → `equivalencia` → `quality-gate
 | patterns | segredos, caminhos proibidos, `bash -n` |
 | pytest + coverage | mínimo **80%** |
 | Trivy | `v0.74.0` — HIGH e CRITICAL falham o build |
-| pin | casos Go de `SituacaoNotaPorSTC`, `MarcaDagua` e `SanitizarAmpersand`; corte de texto sem teste Go; sem PDF |
+| pin | `go test` de `enums` e `utils_string`; cada teste Go tem o mesmo nome e o mesmo resultado no pytest; PDF fora do corte |
 
 Terraform fmt e validate ficam registrados como pulados. O `deploy/terraform` é a cópia vendida, com `create_feature_triggers`, `create_rc_triggers` e `create_prod_triggers` em `false`. Este repositório não aplica esses `.tf` no Cloud Build.
 

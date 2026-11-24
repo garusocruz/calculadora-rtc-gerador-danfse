@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "calculadora-rtc-gerador-danfse"
-version = "0.1.2"
+version = "0.1.3"
 description = "Implementação independente, em Python, do gerador de DANFSe publicado em código aberto pela Receita Federal. Não é produto oficial nem homologado."
 authors = ["Garuso Cruz <garustoec@gmail.com>"]
 license = "MIT"
@@ -22,5 +22,6 @@ build-backend = "poetry.core.masonry.api"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+python_functions = ["test_*", "Test*"]
 junit_family = "legacy"
 addopts = "--cov=calculadora_rtc_gerador_danfse --cov-fail-under=80 --cov-report=term-missing"

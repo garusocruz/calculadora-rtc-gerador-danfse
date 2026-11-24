@@ -1,3 +1,9 @@
+"""Cada teste Go do corte tem o mesmo nome aqui.
+
+O `go test` emite `Teste/cenário`. O pytest emite `Teste_cenário`.
+`scripts/equivalencia.sh` exige o par e o mesmo resultado.
+"""
+
 from calculadora_rtc_gerador_danfse import (
     PIN_OFICIAL_COMMIT,
     PIN_OFICIAL_DATA,
@@ -13,26 +19,54 @@ def test_pin_oficial_e_o_danfse_1_0_0() -> None:
     assert PIN_OFICIAL_DATA == "2026-10-22"
 
 
-def test_situacao_por_stc_segue_o_pin() -> None:
-    # situacao_test.go TestSituacaoNotaPorSTC
+def TestSituacaoNotaPorSTC_valida() -> None:
     assert situacao_por_stc(0) == (SituacaoNota.VALIDA, True)
+
+
+def TestSituacaoNotaPorSTC_substituida() -> None:
     assert situacao_por_stc(1) == (SituacaoNota.SUBSTITUIDA, True)
+
+
+def TestSituacaoNotaPorSTC_cancelada() -> None:
     assert situacao_por_stc(2) == (SituacaoNota.CANCELADA, True)
+
+
+def TestSituacaoNotaPorSTC_desconhecida() -> None:
     assert situacao_por_stc(3) == (SituacaoNota.VALIDA, False)
 
 
-def test_marca_dagua() -> None:
-    assert marca_dagua(SituacaoNota.CANCELADA) == "CANCELADA"
-    assert marca_dagua(SituacaoNota.SUBSTITUIDA) == "SUBSTITUÍDA"
+def TestSituacaoNotaPorSTC() -> None:
+    TestSituacaoNotaPorSTC_valida()
+    TestSituacaoNotaPorSTC_substituida()
+    TestSituacaoNotaPorSTC_cancelada()
+    TestSituacaoNotaPorSTC_desconhecida()
+
+
+def TestSituacaoNotaTipo_MarcaDagua() -> None:
     assert marca_dagua(SituacaoNota.VALIDA) == ""
+    assert marca_dagua(SituacaoNota.SUBSTITUIDA) == "SUBSTITUÍDA"
+    assert marca_dagua(SituacaoNota.CANCELADA) == "CANCELADA"
+
+    class desconhecida:
+        pass
+
+    assert marca_dagua(desconhecida()) == ""
 
 
-def test_ampersand_repete_os_quatro_casos_do_pin() -> None:
-    # utils_strings_test.go TestSanitizarAmpersand_*
+def TestSanitizarAmpersand_ValidEntitiesPreserved() -> None:
     entidades = "&amp; &lt; &gt; &quot; &apos; &#65; &#x41;"
     assert sanitizar_ampersand(entidades) == entidades
+
+
+def TestSanitizarAmpersand_LooseAmpersandEscaped() -> None:
     assert sanitizar_ampersand("A & B") == "A &amp; B"
+
+
+def TestSanitizarAmpersand_NoAmpersand() -> None:
     assert sanitizar_ampersand("no ampersand here") == "no ampersand here"
+
+
+def TestSanitizarAmpersand_Mixed() -> None:
     assert sanitizar_ampersand("safe &amp; unsafe & evil") == "safe &amp; unsafe &amp; evil"
 
 

@@ -63,26 +63,23 @@ O resultado depende do insumo e da cobertura da suíte. Uso em documento fiscal 
 
 ![Arquitetura](docs/arquitetura.png)
 
-A seta do diagrama é a regra portada do pin. O CI não executa o binário Go. `situacao.py` resolve o `stc`. `texto.py` trata o `&` solto e o corte. Os dois não se importam. A fachada não desenha o PDF.
+A seta do diagrama é a regra portada do pin. O pre-push executa o `go test` desses pacotes e exige o mesmo nome dos dois lados. `situacao.py` resolve o `stc`. `texto.py` trata o `&` solto e o corte. Os dois não se importam. A fachada não desenha o PDF.
 
 <a id="equivalencia"></a>
 
 ## Equivalência
 
-A equivalência com a aplicação Go é só a tabela abaixo, no pin `8d79e6b2`. A suíte repete o caso do teste Go quando esse teste existe. Ela não executa `go test` e não compara o PDF.
+O gancho baixa o pin `8d79e6b2` e roda `go test` em `internal/domain/enums` e `internal/domain/utils/utils_string`. A equivalência só fecha quando cada teste Go passou e o pytest tem o mesmo nome, com o mesmo resultado. O nome `Teste/cenário` do Go vira `Teste_cenário` no pytest. O corte de texto não entra nesse par: o pin não tem teste Go de `TruncarTexto`.
 
-| Go do pin | Python | O que a suíte garante |
+| Go do pin | Python | Cenário |
 | --- | --- | --- |
-| `SituacaoNotaPorSTC` | `situacao_por_stc` | `stc` 0 válida, 1 substituída, 2 cancelada; 3 válida e não reconhecida, como `situacao_test.go` |
-| `MarcaDagua` | `marca_dagua` | `CANCELADA`, `SUBSTITUÍDA` e vazio na válida |
-| `SanitizarAmpersand` | `sanitizar_ampersand` | os quatro `TestSanitizarAmpersand_*`: a entidade fica, o `&` solto vira `&amp;`, o texto sem `&` fica, a mistura escapa só o solto |
-| `TruncarTexto`, `TruncarPorTamanho` | `truncar_texto`, `truncar_por_tamanho` | o corte reserva as reticências. `utils_strings` não tem teste Go dessas duas |
+| `TestSituacaoNotaPorSTC` e os quatro subtestes | o mesmo nome | `stc` 0, 1, 2 e 3 |
+| `TestSituacaoNotaTipo_MarcaDagua` | o mesmo nome | `CANCELADA`, `SUBSTITUÍDA`, vazio na válida e num valor desconhecido |
+| `TestSanitizarAmpersand_*` | o mesmo nome | os quatro casos do pin |
 
-`TruncarComReticencias` está na fachada. A suíte ainda não cobre essa função.
+O renderer folio, o layout, o apresentador, o catálogo de localidades, os totais, o Echo, o WASM, o Swagger e a telemetria ficam fora do corte, como o controller fica fora nas calculadoras de CBS e IBS. O PDF não entra.
 
-Fora da tabela ficam o renderer folio, o layout, o apresentador, o catálogo de localidades, os totais, o Echo, o WASM, o Swagger e a telemetria.
-
-O passo continua se chamando `equivalencia`, como nas outras calculadoras. Nesta lib ele roda esse pytest. Não clona o Go do pin. Os percentuais da Última validação são do último run que gravou o README, não deste commit.
+O passo continua se chamando `equivalencia`. Os percentuais da Última validação são do último run que gravou o README, não deste commit.
 
 O gancho `scripts/hooks/pre-push.sh` chama `scripts/equivalencia.sh` depois da auditoria de versão e dos quality gates. O CI é o Cloud Build, sem workflow do GitHub Actions. A pull request dispara `calculadora-rtc-gerador-danfse-pr` e não publica. O push na `main` dispara `calculadora-rtc-gerador-danfse-main`. Depois do quality gate, o mesmo run faz o build da lib, grava o README com esse build e com esse run, publica no PyPI, abre a tag `vX.Y.Z` e abre a pull request que devolve o README para a `main`. O merge dessa pull request vê a versão já publicada e não repete o build.
 
@@ -108,7 +105,7 @@ Só imprime `pre-push OK` quando a auditoria de versão, os quality gates e a su
 | Versão | `scripts/hooks/audit-version.sh` contra `origin/main` | a aplicação mudou e o `MAJOR.MINOR.PATCH` não subiu |
 | Pytest | `python3 -m pytest` com cobertura mínima de 80% | a suíte falha ou a cobertura fica abaixo |
 | Trivy | `v0.74.0`, HIGH e CRITICAL | o scan acha achado que falha o build |
-| Pin | os casos Go da tabela acima, mais o corte com reticências | a suíte falha ou a fachada expõe desenho |
+| Pin | `go test` dos dois pacotes e o mesmo nome no pytest | falta um caso Go ou o resultado diverge |
 
 <a id="ultima-validacao"></a>
 
