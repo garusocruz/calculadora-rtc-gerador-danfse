@@ -243,18 +243,10 @@ if [[ ! -t 0 ]]; then
         continue
         ;;
     esac
-    if ! git rev-parse --verify --quiet origin/main >/dev/null; then
-      echo "OK: ainda não há origin/main. A primeira publicação não compara versão."
-      continue
-    fi
     audit_range "${local_sha}"
   done
 fi
 
 if [[ "${audited}" -eq 0 ]]; then
-  if ! git rev-parse --verify --quiet origin/main >/dev/null; then
-    echo "OK: ainda não há origin/main. A primeira publicação não compara versão."
-  else
-    audit_range "$(git rev-parse HEAD)"
-  fi
+  audit_range "$(git rev-parse HEAD)"
 fi

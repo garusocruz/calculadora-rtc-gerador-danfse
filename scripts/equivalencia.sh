@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Suíte do pin sem PDF. Não clona o Go e não gera PDF.
+# Suíte do pin: pytest de situação e texto. Não clona o Go.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -15,7 +15,7 @@ else
   PY="python3"
 fi
 
-echo "── pin (sem PDF) ──"
+echo "── pin (situação e texto) ──"
 set +e
 "${PY}" -m pytest -q --junitxml="${STEPS}/pin-pytest.xml" >"${STEPS}/pin-pytest.txt" 2>&1
 rc=$?
@@ -59,14 +59,13 @@ banned = [
 ]
 if banned:
     raise SystemExit(
-        "a fachada expõe PDF antes da suíte que compara com o pin: " + ", ".join(banned)
+        "a fachada expõe desenho que esta suíte não cobre: " + ", ".join(banned)
     )
 payload = {
     "pytest_passaram": tests - failures - errors - skipped,
     "pytest_ignorados": skipped,
     "pytest_segundos": round(seconds, 2),
-    "pdf": "nao",
 }
 resumo_path.write_text(json.dumps(payload), encoding="utf-8")
-print(f"Pin: {payload['pytest_passaram']} passaram. O PDF não entra.")
+print(f"Pin: {payload['pytest_passaram']} passaram.")
 PY

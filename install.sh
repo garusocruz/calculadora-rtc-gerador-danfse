@@ -30,4 +30,4 @@ fi
 
 echo "OK: install complete"
 echo "Em outro shell: source ${ROOT}/.venv/bin/activate"
-echo "Pin: bash scripts/hooks/pre-push.sh"
+echo "Equivalência: bash scripts/hooks/pre-push.sh"

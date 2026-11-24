@@ -20,5 +20,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
-addopts = "--cov=calculadora_rtc_gerador_danfse --cov-fail-under=80 --cov-report=term-missing"
 testpaths = ["tests"]
+pythonpath = ["."]
+junit_family = "legacy"
+addopts = "--cov=calculadora_rtc_gerador_danfse --cov-fail-under=80 --cov-report=term-missing"

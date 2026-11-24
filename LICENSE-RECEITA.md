@@ -1,3 +1,9 @@
+# Licença da fonte oficial em Go
+
+Texto copiado de [ReceitaFederal/calculadora-rtc-gerador-danfse](https://github.com/ReceitaFederal/calculadora-rtc-gerador-danfse) no commit `8d79e6b2f7fad6375340afcb51c85ed370c64a14`.
+
+Esta é a licença do gerador de DANFSe da Receita Federal. Não é a licença desta releitura em Python. A licença desta lib está em [LICENSE](LICENSE).
+
 MIT License
 
 Copyright (c) 2026 Receita Federal do Brasil

@@ -70,8 +70,6 @@ if cob.is_file():
     cob_py = f"{pct.replace('.', ',')}% de {stmts} sentenças. O mínimo desta lib é 80%"
 else:
     raise SystemExit("Sem a cobertura Python. O README não abre a versão.")
-if resumo.get("pdf") != "nao":
-    raise SystemExit("O README não promete o PDF. A suíte do pin ainda não compara o render.")
 bloco = f"""## Última validação
 
 Data: {quando}. Os números abaixo são do Cloud Build [`{build}`]({url}), o run que validou esta versão.
@@ -80,9 +78,8 @@ Data: {quando}. Os números abaixo são do Cloud Build [`{build}`]({url}), o run
 | --- | --- |
 | Pytest do pin | {pytest} |
 | Cobertura Python | {cob_py} |
-| PDF | não; esta versão não compara o render com o folio |
 | Pacote deste run | `{sdist}` e `{wheel}` |
-| Frase final | `Pin: a suíte sem PDF passou.` |"""
+| Frase final | `Pin: a suíte de situação e texto passou.` |"""
 text = pathlib.Path(path).read_text(encoding="utf-8")
 start = "<!-- release-runs:start -->"
 end = "<!-- release-runs:end -->"
@@ -113,6 +110,10 @@ text = re.sub(
     rf"\g<1>{ver}\g<2>",
     text,
     count=1,
+)
+text = text.replace(
+    "Ainda não há pacote no índice público do PyPI.",
+    f"O pacote público no PyPI é a `{ver}`.",
 )
 text = re.sub(
     r"(O pacote público no PyPI é a `)[0-9]+\.[0-9]+\.[0-9]+(`)",

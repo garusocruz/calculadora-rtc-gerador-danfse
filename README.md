@@ -2,16 +2,20 @@
 
 DANFSe em Python. É uma implementação independente do gerador que a Receita Federal publicou em Go, no commit pinado. Não é um fork: o código Go não entra neste repositório.
 
-Não é projeto oficial, produto homologado, certificado ou mantido pela Receita Federal do Brasil nem pelo Serpro. Não é parecer, orientação ou consultoria tributária. Não emite NFS-e e não chama a Sefin.
+Não é projeto oficial, produto homologado, certificado ou mantido pela Receita Federal do Brasil nem pelo Serpro. Não é parecer, orientação ou consultoria tributária. A suíte do pin não cobre cenário que ela não executa e não substitui a legislação.
 
 **Nossas** (esta implementação em Python, MIT, Copyright (c) 2026 Garuso Cruz)
 
+[![PyPI](https://img.shields.io/pypi/v/calculadora-rtc-gerador-danfse)](https://pypi.org/project/calculadora-rtc-gerador-danfse/)
 [![nossa licença MIT](https://img.shields.io/badge/nossa%20licen%C3%A7a-MIT%20Garuso%20Cruz-green)](LICENSE)
+[![Cloud Build CI](https://img.shields.io/badge/Cloud%20Build-CI-blue?logo=googlecloud&logoColor=white)](cloudbuild.yaml)
 
 **Do pin oficial** (danfse-service 1.0.0, commit `8d79e6b2`, MIT, Copyright (c) 2026 Receita Federal do Brasil)
 
 [![pin oficial 8d79e6b2](https://img.shields.io/badge/pin%20oficial-8d79e6b2-orange)](https://github.com/ReceitaFederal/calculadora-rtc-gerador-danfse/commit/8d79e6b2f7fad6375340afcb51c85ed370c64a14)
 [![licença do pin MIT](https://img.shields.io/badge/licen%C3%A7a%20do%20pin-MIT%20Receita%20Federal-blue)](LICENSE-RECEITA.md)
+
+A cobertura desta lib conta sentenças Python. O mínimo é 80%. O detalhe do último run fica em [Última validação](#ultima-validacao).
 
 | | |
 | --- | --- |
@@ -20,37 +24,52 @@ Não é projeto oficial, produto homologado, certificado ou mantido pela Receita
 | Commit pinado | [`8d79e6b2f7fad6375340afcb51c85ed370c64a14`](https://github.com/ReceitaFederal/calculadora-rtc-gerador-danfse/commit/8d79e6b2f7fad6375340afcb51c85ed370c64a14) |
 | Licenças | [LICENSE](LICENSE) (nossa) e [LICENSE-RECEITA.md](LICENSE-RECEITA.md) (Receita, sobre o Go do pin) |
 
+## Índice
+
+- [Limite de uso](#limite)
+- [Arquitetura](#arquitetura)
+- [Equivalência](#equivalencia)
+- [Última validação](#ultima-validacao)
+- [Atualização do pin](#atualizacao-do-pin)
+- [Instalação](#instalacao)
+- [Consumo](#consumo)
+- [Licença](#licenca)
+
+## Fora do escopo
+
+Quem consome chama `calculadora_rtc_gerador_danfse.consumo`. O servidor Echo, o WASM, o Swagger e a telemetria ficam no Go. Esta lib não sobe API, não emite NFS-e e não chama a Sefin.
+
+O cálculo de CBS e IBS não mora aqui. Ele está nas libs `calculadora-rtc-regime-regular` e `calculadora-rtc-simples-nacional`.
+
+<a id="limite"></a>
+
 ## Limite de uso
 
-Quem consome chama `calculadora_rtc_gerador_danfse.consumo`. O servidor Echo, o WASM, o Swagger e a telemetria ficam no Go.
+O resultado depende do insumo e da cobertura da suíte. Uso em documento fiscal exige conferência independente. A publicação do código pela Receita não homologa esta implementação.
 
 | O que | Nesta versão |
 | --- | --- |
 | Situação da nota (`stc`) e marca d'água | sim, o mesmo `SituacaoNotaPorSTC` do pin |
 | `&` solto no XML e corte de texto | sim, o mesmo `utils_strings` do pin |
-| PDF do DANFSe | não; o pin desenha com folio e esta lib ainda não reproduz esse render |
-| HTTP, WASM, OTel e health | não |
+| Servidor Echo, WASM, Swagger e telemetria | não; ficam no Go do pin |
 | Emissão de NFS-e e chamada à Sefin | não |
 | Parecer ou enquadramento tributário | não |
 
-O cálculo de CBS e IBS não mora aqui. Ele está nas libs `calculadora-rtc-regime-regular` e `calculadora-rtc-simples-nacional`.
+<a id="arquitetura"></a>
 
-## Licença
+## Arquitetura
 
-| Obra | Licença | Arquivo |
-| --- | --- | --- |
-| Esta implementação em Python | MIT, Copyright (c) 2026 Garuso Cruz | [LICENSE](LICENSE) |
-| danfse-service, commit `8d79e6b2f7fad6375340afcb51c85ed370c64a14` | MIT, Copyright (c) 2026 Receita Federal do Brasil | [LICENSE-RECEITA.md](LICENSE-RECEITA.md) |
+![Arquitetura](docs/arquitetura.png)
 
-A MIT da Receita não transfere a titularidade do código dela.
+A fachada não importa o desenho do documento. `situacao.py` resolve o `stc`. `texto.py` trata o `&` solto e o corte. Os dois não se importam.
 
-## CI
+<a id="equivalencia"></a>
 
-O CI é o Cloud Build, sem workflow do GitHub Actions. A pull request dispara `calculadora-rtc-gerador-danfse-pr` e não publica. O push na `main` dispara `calculadora-rtc-gerador-danfse-main`. Depois do quality gate, o mesmo run faz o build da lib, grava o README com esse build e com esse run, publica no PyPI, abre a tag `vX.Y.Z` e abre a pull request que devolve o README para a `main`. O merge dessa pull request vê a versão já publicada e não repete o build.
+## Equivalência
 
-A tag `vX.Y.Z` dispara `calculadora-rtc-gerador-danfse-release`. Esse passo não publica de novo: confere o README e que o PyPI já tem a versão gravada no bloco abaixo.
+O passo continua se chamando `equivalencia`, como nas outras calculadoras. Nesta lib ele roda o pytest de situação da nota e de texto. Não clona o Go do pin. Os percentuais da Última validação são do último run que gravou o README, não deste commit.
 
-A suíte do pin é o pytest de situação da nota e de texto. Ela não compara PDF. O render com folio não entra enquanto essa comparação não existir. O código Go do pin não entra neste repositório.
+O gancho `scripts/hooks/pre-push.sh` chama `scripts/equivalencia.sh` depois da auditoria de versão e dos quality gates. O CI é o Cloud Build, sem workflow do GitHub Actions. A pull request dispara `calculadora-rtc-gerador-danfse-pr` e não publica. O push na `main` dispara `calculadora-rtc-gerador-danfse-main`. Depois do quality gate, o mesmo run faz o build da lib, grava o README com esse build e com esse run, publica no PyPI, abre a tag `vX.Y.Z` e abre a pull request que devolve o README para a `main`. O merge dessa pull request vê a versão já publicada e não repete o build.
 
 O número deste repositório não vira release no GitHub.
 
@@ -58,17 +77,109 @@ O número deste repositório não vira release no GitHub.
 Ainda não há release publicada.
 <!-- release-runs:end -->
 
+A tag `vX.Y.Z` dispara `calculadora-rtc-gerador-danfse-release`. Esse passo não publica de novo: confere o README e que o PyPI já tem a versão gravada no bloco abaixo.
+
+```bash
+export PATH="${HOME}/.local/bin:${HOME}/.asdf/shims:${PATH}"
+cd libs/calculadora-rtc-gerador-danfse
+bash scripts/hooks/pre-push.sh
+```
+
+Só imprime `pre-push OK` quando a auditoria de versão, os quality gates e a suíte do pin passam.
+
+| Gate | O que confere | Falha se |
+| --- | --- | --- |
+| Versão | `scripts/hooks/audit-version.sh` contra `origin/main` | a aplicação mudou e o `MAJOR.MINOR.PATCH` não subiu |
+| Pytest | `python3 -m pytest` com cobertura mínima de 80% | a suíte falha ou a cobertura fica abaixo |
+| Trivy | `v0.74.0`, HIGH e CRITICAL | o scan acha achado que falha o build |
+| Pin | situação (`stc`) e texto, com os nomes da fachada | a suíte falha ou a fachada expõe desenho |
+
 <a id="ultima-validacao"></a>
 
 ## Última validação
 
-Ainda não há run de publicação. O PDF não entra.
+Ainda não há run de publicação.
 
 <a id="atualizacao-do-pin"></a>
 
-## Desenvolvimento
+## Atualização do pin
+
+A Receita não aceita pull request externo. O acompanhamento é a inscrição no repositório oficial, em Watch, com Issues, Releases e Security alerts. Pull requests e Discussions ficam desligados.
+
+Os três pins oficiais (regime regular, Simples e DANFSe) estão em `lynko-workspace/initiatives/faturae/receita-rtc-pins.json`, no repositório interno da Lynko. O pin desta lib é `PIN_OFICIAL_COMMIT` em `calculadora_rtc_gerador_danfse`.
+
+Quando sai um release, um alerta de segurança ou uma issue que muda regra:
+
+1. Ler o commit novo no repositório oficial. O código Go não entra neste git.
+2. Trocar `PIN_OFICIAL_COMMIT`, `PIN_OFICIAL_VERSAO` e `PIN_OFICIAL_DATA`, e o mesmo commit no README.
+3. Se `SituacaoNotaPorSTC` ou `utils_strings` mudou, portar essa regra. A fachada em `consumo.py` conserva o nome público. Por dentro, a função fica em snake_case.
+4. Rodar `bash scripts/hooks/pre-push.sh` até `pre-push OK`.
+5. Abrir a pull request para `main`. O merge, no mesmo run, faz o build, grava o README, publica no PyPI, abre a tag e abre a pull request que devolve o README para a `main`.
+
+Não se recoloca esse gerador em `backends/faturae`. Não se publica no Artifact Registry. Não se publica pacote de rc.
+
+<a id="instalacao"></a>
+
+## Instalação
+
+Python 3.12 ou superior. Não há dependência de runtime além da biblioteca padrão. Ainda não há pacote no índice público do PyPI.
+
+```bash
+pip install calculadora-rtc-gerador-danfse
+```
+
+Para desenvolver a partir do clone:
 
 ```bash
 cd libs/calculadora-rtc-gerador-danfse
-bash scripts/bootstrap-dev.sh
+./install.sh
 ```
+
+O script cria o `.venv` na raiz (`cenv` se existir, senão `python3 -m venv`), ativa esse ambiente, roda `poetry install --with dev` e, no clone git, registra pre-commit, pre-push e commit-msg. Em outro shell: `source .venv/bin/activate`.
+
+<a id="consumo"></a>
+
+## Consumo
+
+Importe a fachada. Não abra porta e não monte servidor.
+
+```python
+from calculadora_rtc_gerador_danfse.consumo import (
+    marca_dagua,
+    sanitizar_ampersand,
+    situacao_por_stc,
+    truncar_texto,
+)
+from calculadora_rtc_gerador_danfse.situacao import SituacaoNota
+
+situacao, reconhecida = situacao_por_stc(2)
+marca = marca_dagua(situacao)
+xml = sanitizar_ampersand("a & b")
+linha = truncar_texto("linha", 1, 3)
+```
+
+`situacao` é `SituacaoNota.CANCELADA` quando o `stc` é `2`. `reconhecida` diz se o código está no conjunto do pin. `marca_dagua` devolve `CANCELADA`, `SUBSTITUÍDA` ou vazio.
+
+Fachada em `consumo.py`:
+
+| Nome | O que faz |
+| --- | --- |
+| `situacao_por_stc` | `SituacaoNotaPorSTC` do pin |
+| `marca_dagua` | texto da marca para cancelada e substituída |
+| `sanitizar_ampersand` | `&` solto vira `&amp;`; entidade XML fica |
+| `truncar_texto` | corte por linhas e por tamanho, com reticências |
+| `truncar_por_tamanho` | corte de uma linha |
+| `truncar_com_reticencias` | reticências no limite de caracteres |
+
+<a id="licenca"></a>
+
+## Licença
+
+O código Go oficial não é copiado para este git. A licença dele vale para a obra da Receita e fica reproduzida aqui para o aviso de copyright.
+
+| Obra | Licença | Arquivo |
+| --- | --- | --- |
+| Esta implementação em Python | MIT, Copyright (c) 2026 Garuso Cruz | [LICENSE](LICENSE) |
+| danfse-service, commit `8d79e6b2f7fad6375340afcb51c85ed370c64a14` | MIT, Copyright (c) 2026 Receita Federal do Brasil | [LICENSE-RECEITA.md](LICENSE-RECEITA.md) |
+
+O texto MIT da Receita exige que o aviso de copyright e a permissão acompanhem cópias substanciais daquela obra. Esta implementação conserva esse aviso. A licença desta lib continua sendo a MIT de Garuso Cruz. A MIT da Receita não transfere a titularidade do código dela.

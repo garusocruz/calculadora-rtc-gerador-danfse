@@ -1,0 +1,22 @@
+flowchart TB
+  subgraph oficial ["Receita Federal — pin 8d79e6b2"]
+    go["danfse-service em Go"]
+    stc["SituacaoNotaPorSTC"]
+    textoGo["utils_strings"]
+    go --> stc
+    go --> textoGo
+  end
+
+  subgraph lib ["Esta lib Python"]
+    fachada["consumo.py"]
+    situacao["situacao.py"]
+    texto["texto.py"]
+    fachada --> situacao
+    fachada --> texto
+  end
+
+  stc --> situacao
+  textoGo --> texto
+  situacao --> pytest["pytest de situação e texto"]
+  texto --> pytest
+  pytest --> gate["scripts/equivalencia.sh"]

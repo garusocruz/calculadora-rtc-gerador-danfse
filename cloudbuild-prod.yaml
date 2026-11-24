@@ -1,5 +1,5 @@
-# Push na main. A suíte do pin não gera PDF. Depois do quality gate, o mesmo run
-# faz o build, grava o README, publica no PyPI, abre a tag e abre a pull request do README.
+# Push na main. Depois do quality gate, o mesmo run faz o build, grava o README,
+# publica no PyPI, abre a tag e abre a pull request do README para a main.
 # O commit desse README confere que a versão já está publicada e não repete nada.
 # O cancelamento desta branch recebe o ambiente main. production faria o script pular.
 substitutions:

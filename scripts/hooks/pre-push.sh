@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# pre-push: quality gates e a suíte do pin. O PDF não entra.
+# pre-push: quality gates (patterns, pytest, Trivy) e a suíte do pin.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "${ROOT}"

@@ -1,5 +1,10 @@
-# Local git hooks. CB merge gate: scripts/ci-quality-gates.sh and scripts/equivalencia.sh.
-# The pin suite does not render a PDF.
+# Local git hooks.
+#
+# Install once:
+#   ./install.sh
+#   # or: bash scripts/bootstrap-dev.sh
+#
+# CB merge gate remains scripts/ci-quality-gates.sh plus scripts/equivalencia.sh.
 
 repos:
   - repo: local

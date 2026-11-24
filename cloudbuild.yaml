@@ -1,4 +1,4 @@
-# Pull request para main. Suíte do pin e quality gates. Não publica e não gera PDF.
+# Pull request para main. Equivalência e quality gates. Não publica.
 # O push na main usa cloudbuild-prod.yaml e publica no mesmo run do quality gate.
 # A tag vX.Y.Z usa cloudbuild-release.yaml e só confere o que a main já publicou.
 # O comentário da pull request sai em report-pr.
