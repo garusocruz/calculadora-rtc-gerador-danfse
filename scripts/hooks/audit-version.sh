@@ -252,5 +252,9 @@ if [[ ! -t 0 ]]; then
 fi
 
 if [[ "${audited}" -eq 0 ]]; then
-  audit_range "$(git rev-parse HEAD)"
+  if ! git rev-parse --verify --quiet origin/main >/dev/null; then
+    echo "OK: ainda não há origin/main. A primeira publicação não compara versão."
+  else
+    audit_range "$(git rev-parse HEAD)"
+  fi
 fi
